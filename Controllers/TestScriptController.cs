@@ -65,7 +65,7 @@ namespace RunLocalPowershell.Controllers
             runspace.Close();
 
             string responseMessage = string.IsNullOrEmpty(outputString)
-                ? "NO OUTPUT"
+                ? $"NO OUTPUT in {Environment.GetEnvironmentVariable("ScriptPath")}"
                 : $"Connect to {Environment.GetEnvironmentVariable("ScriptPath")} with OUTPUT: \n\n{outputString}";
 
             return responseMessage;
