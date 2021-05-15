@@ -41,4 +41,4 @@ Write-Output $DisplayName
 if ($null -ne $ExpirationDate) {
     Write-Output $ExpirationDate.ToString("dd. MM. yyyy")
 }
-throw "alsdkfj"
+throw "Custom Script Error Message"
