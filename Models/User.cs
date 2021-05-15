@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 
 namespace RunLocalPowershell.Models
 {
@@ -42,7 +43,8 @@ namespace RunLocalPowershell.Models
         public string ZIP { get; set; }
         public string WebPage { get; set; }
         public string Gruppenmitgliedschaft { get; set; }
-        public DateTime ExpirationDate { get; set; }
+        [DefaultValue(null)]
+        public DateTime? ExpirationDate { get; set; }
         public string License { get; set; }
 
         [Required(ErrorMessage = "ExchangeServer is required")]

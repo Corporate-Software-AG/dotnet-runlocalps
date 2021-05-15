@@ -14,7 +14,7 @@
       "launchBrowser": true,
       "launchUrl": "api/v1/testscript",
       "environmentVariables": {
-        "ScriptPath": "C:\\Users\\Thomas\\Powershell\\test2.ps1",
+        "ScriptPath": ".\\scripts\\test.ps1",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },

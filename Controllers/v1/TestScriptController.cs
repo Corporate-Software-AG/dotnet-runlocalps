@@ -9,7 +9,7 @@ using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Threading.Tasks;
 
-namespace RunLocalPowershell.Controllers
+namespace RunLocalPowershell.Controllers.v1
 {
     [Route("api/v1/[controller]")]
     [ApiController]

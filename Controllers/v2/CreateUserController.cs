@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
@@ -12,11 +11,13 @@ using System.Security;
 using RunLocalPowershell.Models;
 using System.Reflection;
 using Microsoft.PowerShell;
+using System.Net.Http;
+using System.Net;
 
-namespace RunLocalPowershell.Controllers
+namespace RunLocalPowershell.Controllers.v2
 {
     [ApiController]
-    [Route("api/v1/[controller]")]
+    [Route("api/v2/[controller]")]
     public class CreateUserController : ControllerBase
     {
         private readonly ILogger<CreateUserController> _logger;
@@ -27,7 +28,7 @@ namespace RunLocalPowershell.Controllers
         }
 
         [HttpPost]
-        public string Post([FromBody] User user)
+        public object Post([FromBody] User user)
         {
             var scriptParams = new Dictionary<string, string>();
             PropertyInfo[] properties = typeof(User).GetProperties();
@@ -37,16 +38,12 @@ namespace RunLocalPowershell.Controllers
                 {
                     scriptParams.Add(property.Name, property.GetValue(user).ToString());
                 }
-                else
-                {
-                    scriptParams.Add(property.Name, "");
-                }
             }
 
             return RunScript(scriptParams);
         }
 
-        private string RunScript(Dictionary<string, string> scriptParams)
+        private object RunScript(Dictionary<string, string> scriptParams)
         {
             // Create a default initial session state and set the execution policy.
             InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
@@ -70,25 +67,48 @@ namespace RunLocalPowershell.Controllers
                 // specify the parameters to pass into the script.
                 ps.AddParameters(scriptParams);
 
-                // execute the script and await the result.                
-                var output = ps.Invoke();
-
-                // print the resulting pipeline objects to the console.
-
-
-                foreach (var item in output)
+                // execute the script and await the result.              
+                try
                 {
-                    Console.WriteLine(item.ToString());
-                    outputString += item.ToString() + "\n";
+                    var result = ps.Invoke();
+
+                    if (ps.HadErrors)
+                    {
+                        foreach (ErrorRecord error in ps.Streams.Error.ReadAll())
+                        {
+                            Console.WriteLine(error.ToString());
+                            throw new ApplicationFailedException(error.ErrorDetails.Message);
+                        }
+                    }
+
+                    foreach (var item in result)
+                    {
+                        outputString += item.ToString() + "\n";
+                    }
                 }
+                catch (Exception ex)
+                {
+                    throw new ApplicationFailedException(ex.Message);
+                }
+                finally
+                {
+                    ps.Stop();
+                }
+
+
             }
             runspace.Close();
 
-            string responseMessage = string.IsNullOrEmpty(outputString)
-                ? "NO OUTPUT"
-                : $"Run  {Environment.GetEnvironmentVariable("ScriptPath")} with OUTPUT: \n\n{outputString}";
+            string responseMessage = string.IsNullOrEmpty(outputString) ? "NO OUTPUT" : outputString;
 
-            return responseMessage;
+            var obj = new
+            {
+                ScriptPath = Environment.GetEnvironmentVariable("ScriptPath"),
+                ScriptOutput = responseMessage,
+                Status = "Success"
+            };
+
+            return obj;
         }
     }
 }

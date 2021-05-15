@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>9629f5c4-fea5-47d7-9949-7664a98f8fc4</UserSecretsId>
+    <ApplicationInsightsResourceId>/subscriptions/abe489da-01c9-4068-b7d5-1cd8156d601d/resourceGroups/pssessiontest/providers/microsoft.insights/components/appinsights</ApplicationInsightsResourceId>
   </PropertyGroup>
 
   <ItemGroup>
