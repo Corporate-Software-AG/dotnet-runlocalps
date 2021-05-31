@@ -1,14 +1,10 @@
-﻿param([Parameter(Mandatory=$true)]
+﻿param(
       [string] $FirstName,
-      [Parameter(Mandatory=$true)]
       [string] $LastName,
-      [Parameter(Mandatory=$true)]
       [string] $LogonName,
-      [Parameter(Mandatory=$true)]
       [string] $DisplayName,
-      [Parameter(Mandatory=$true)]
       [string] $EMail,
-      [string] $PasswordResetNR,
+      [string] $MobileNR,
       [string] $TelephoneNR,
       [string] $Description,
       [string] $Company,
@@ -16,20 +12,16 @@
       [string] $Kostenstelle,
       [string] $Department,
       [string] $Office,
-      [Parameter(Mandatory=$true)]
       [string] $Manager,
-      [Parameter(Mandatory=$true)]
       [string] $Container,
       [string] $Street,
       [string] $City,
       [string] $ZIP,
       [string] $WebPage,
-      [string] $Gruppenmitgliedschaft,
+      [string[]] $Gruppenmitgliedschaft,
       [DateTime] $ExpirationDate,
       [string] $License,
-      [Parameter(Mandatory=$true)]
-      [string] $ExchangeServer,
-      [Parameter(Mandatory=$true)]
+      [string] $Accounttype,
       [string] $Password
 )
 
@@ -38,6 +30,13 @@ Write-Output $FirstName
 Write-Output $LastName
 Write-Output $LogonName
 Write-Output $DisplayName
+
+if ($null -ne $Gruppenmitgliedschaft) {
+    foreach($ele in $Gruppenmitgliedschaft) {
+        Write-Output $ele
+    }
+}
+
 if ($null -ne $ExpirationDate) {
     Write-Output $ExpirationDate.ToString("dd. MM. yyyy")
 }

@@ -13,6 +13,8 @@ using System.Reflection;
 using Microsoft.PowerShell;
 using System.Net.Http;
 using System.Net;
+using Microsoft.PowerShell.Commands;
+using Microsoft.AspNetCore.Http;
 
 namespace RunLocalPowershell.Controllers.v2
 {
@@ -28,23 +30,19 @@ namespace RunLocalPowershell.Controllers.v2
         }
 
         [HttpPost]
-        public object Post([FromBody] User user)
+        public IActionResult Post([FromBody] User user)
         {
-            var scriptParams = new Dictionary<string, string>();
+            var scriptParams = new Dictionary<string, object>();
             PropertyInfo[] properties = typeof(User).GetProperties();
             foreach (PropertyInfo property in properties)
             {
                 if (property.GetValue(user) != null)
                 {
-                    scriptParams.Add(property.Name, property.GetValue(user).ToString());
+                    scriptParams.Add(property.Name, property.GetValue(user));
+
                 }
             }
 
-            return RunScript(scriptParams);
-        }
-
-        private object RunScript(Dictionary<string, string> scriptParams)
-        {
             // Create a default initial session state and set the execution policy.
             InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
             initialSessionState.ExecutionPolicy = ExecutionPolicy.Unrestricted;
@@ -88,7 +86,13 @@ namespace RunLocalPowershell.Controllers.v2
                 }
                 catch (Exception ex)
                 {
-                    throw new ApplicationFailedException(ex.Message);
+                    var errobj = new
+                    {
+                        ScriptPath = Environment.GetEnvironmentVariable("ScriptPath"),
+                        StatusCode = 500,
+                        Message = ex.Message
+                    };
+                    return new MyActionResult(errobj);
                 }
                 finally
                 {
@@ -108,7 +112,27 @@ namespace RunLocalPowershell.Controllers.v2
                 Status = "Success"
             };
 
-            return obj;
+            return Ok(obj);
+        }
+    }
+
+    public class MyActionResult : IActionResult
+    {
+        private readonly object _result;
+
+        public MyActionResult(object result)
+        {
+            _result = result;
+        }
+
+        public async Task ExecuteResultAsync(ActionContext context)
+        {
+            var objectResult = new ObjectResult(_result)
+            {
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
+
+            await objectResult.ExecuteResultAsync(context);
         }
     }
 }

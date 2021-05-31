@@ -29,13 +29,13 @@ namespace RunLocalPowershell.Models
         public string Office { get; set; }
 
         public string Manager { get; set; }
-        public int Accounttype { get set; }
+        public int Accounttype { get; set; }
         
         public string Street { get; set; }
         public string City { get; set; }
         public string ZIP { get; set; }
         public string WebPage { get; set; }
-        public string Gruppenmitgliedschaft { get; set; }
+        public string[] Gruppenmitgliedschaft { get; set; }
         [DefaultValue(null)]
         public DateTime? ExpirationDate { get; set; }
         public string License { get; set; }
